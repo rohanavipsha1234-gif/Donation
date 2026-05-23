@@ -38,20 +38,28 @@ class ApiError extends Error {
   }
 }
 
+const API_BASE =
+  import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(url, init);
+  const res = await fetch(`${API_BASE}${url}`, init);
+
   let data: unknown;
+
   try {
     data = await res.json();
   } catch {
     data = null;
   }
+
   if (!res.ok) {
     const msg =
       (data as { error?: string })?.error ??
       `HTTP ${res.status} ${res.statusText}`;
+
     throw new ApiError(res.status, msg);
   }
+
   return data as T;
 }
 
