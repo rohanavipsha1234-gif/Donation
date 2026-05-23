@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Robux Donation Hub"
+version = "1.0.0"
+id = "artifacts/robux-hub"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18259
+
+[services.development]
+run = "pnpm --filter @workspace/robux-hub run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/robux-hub", "run", "build" ]
+publicDir = "artifacts/robux-hub/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18259"
+BASE_PATH = "/"

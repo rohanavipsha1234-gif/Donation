@@ -1,0 +1,140 @@
+local http = game:GetService("HttpService")
+local MarketplaceService = game:GetService("MarketplaceService")
+
+-- ✅ Debounce table
+local debounce = {}
+
+script.Parent.RemoteEvent.OnServerEvent:Connect(function(player, username)
+
+	-- ✅ STOP SPAM
+	if debounce[player] then return end
+	debounce[player] = true
+
+	local success, err = pcall(function()
+
+		local frame = script.Parent.ScrollingFrame
+		local buttons = frame:GetChildren()
+
+		-- Clear existing buttons
+		for i, item in pairs(buttons) do
+			if item:IsA("TextButton") or item.Name == "LoadingLabel" then
+				item:Destroy()
+			end	
+		end
+
+		-- ✅ CREATE LOADING TEXT
+		local loading = Instance.new("TextLabel")
+		loading.Name = "LoadingLabel"
+		loading.Size = UDim2.new(1, 0, 0, 50)
+		loading.BackgroundTransparency = 1
+		loading.Text = "Loading..."
+		loading.TextScaled = true
+		loading.Parent = frame
+
+		-- Step 1: Get user ID
+		local userIdSuccess, userId = pcall(function()
+			return game.Players:GetUserIdFromNameAsync(username)
+		end)
+
+		if not userIdSuccess or not userId then
+			loading.Text = "User not found"
+			task.wait(2)
+			loading:Destroy()
+			return
+		end
+
+		-- Step 2: Get user's games
+		local gamesSuccess, gamesResponse = pcall(function()
+			return http:GetAsync("https://games.roproxy.com/v2/users/" .. userId .. "/games?accessFilter=2&limit=50&sortOrder=Asc")
+		end)
+
+		if not gamesSuccess then
+			loading.Text = "Failed to load games"
+			task.wait(2)
+			loading:Destroy()
+			return
+		end
+
+		local gamesData = http:JSONDecode(gamesResponse)
+
+		local allPasses = {}
+
+		-- ✅ UPDATE LOADING TEXT
+		loading.Text = "Fetching Gamepasses..."
+
+		-- Step 3: Get passes
+		for _, gameInfo in pairs(gamesData.data or {}) do
+
+			local passSuccess, passResponse = pcall(function()
+				return http:GetAsync("https://apis.roproxy.com/game-passes/v1/universes/" .. gameInfo.id .. "/game-passes?passView=Full&pageSize=100")
+			end)
+
+			if passSuccess and passResponse then
+				local passData = http:JSONDecode(passResponse)
+				local passes = passData.gamePasses or passData.data or {}
+
+				-- ✅ UPDATE TEXT BEFORE OWNERSHIP CHECK
+				loading.Text = "Removing Owned Gamepasses..."
+
+				for _, item in pairs(passes) do
+					local price = item.price
+					local isForSale = item.isForSale
+					local passId = item.id
+
+					if typeof(price) == "number" and price > 0 and isForSale ~= false then
+
+						local owns = false
+						local ok, result = pcall(function()
+							return MarketplaceService:UserOwnsGamePassAsync(player.UserId, passId)
+						end)
+
+						if ok and result == true then
+							owns = true
+						end
+
+						if not owns then
+							table.insert(allPasses, item)
+						end
+					end
+				end
+			end
+		end
+
+		-- ✅ REMOVE LOADING TEXT
+		loading:Destroy()
+
+		if #allPasses > 0 then
+
+			table.sort(allPasses, function(a, b)
+				return (a.price or 0) < (b.price or 0)
+			end)
+
+			for i, item in pairs(allPasses) do
+				local newButton = script.DonateButton:Clone()
+
+				local itemPrice = item.price or 0
+				local itemId = item.id
+
+				newButton.Text = itemPrice .. " Robux"
+				newButton.Name = tostring(itemId)
+				newButton.Parent = frame
+			end
+		else
+			-- ✅ SHOW NO PASSES MESSAGE
+			local noPass = Instance.new("TextLabel")
+			noPass.Size = UDim2.new(1, 0, 0, 50)
+			noPass.BackgroundTransparency = 1
+			noPass.Text = "No passes available"
+			noPass.TextScaled = true
+			noPass.Parent = frame
+		end
+
+	end)
+
+	if not success then
+		warn(err)
+	end
+
+	-- ✅ RELEASE DEBOUNCE
+	debounce[player] = nil
+end)

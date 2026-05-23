@@ -1,0 +1,118 @@
+Upgrade the “Robux Donation Hub” website using the same gamepass-fetching logic style as the Roblox donation game system below.
+
+Core Goal:
+Make the website behave similarly to Roblox donation games like PLS DONATE:
+
+* Search Roblox username
+* Fetch ALL public on-sale gamepasses from the user’s games
+* Sort gamepasses by lowest price
+* Hide already-owned passes for the logged-in user if possible
+* Display donation buttons
+* Open official Roblox purchase page when clicked
+
+IMPORTANT:
+The website does NOT transfer Robux directly.
+The website ONLY helps users discover and buy public Roblox gamepasses through official Roblox pages.
+
+Do NOT:
+
+* automate purchases
+* store Roblox passwords
+* store Roblox cookies permanently
+* bypass Roblox marketplace systems
+
+Use the following Roblox-game logic as the reference architecture:
+
+FLOW:
+
+1. Convert username → userId
+2. Fetch all public games/universes owned by the user
+3. Fetch all gamepasses from those universes
+4. Filter:
+
+   * only public/on-sale passes
+   * valid prices only
+   * remove duplicates
+5. Sort by lowest price
+6. Show donation buttons
+
+MATCH THESE FEATURES FROM THE LUA SYSTEM:
+
+* Debounce requests
+* Loading states
+* Rate-limit protection
+* Cache fetched gamepasses
+* Prevent duplicate passes
+* Sort by lowest price
+* “No passes available” message
+* “User not found” message
+* “Loading…” UI
+
+IMPORTANT WEBSITE IMPLEMENTATION:
+Instead of Roblox Lua:
+
+* Use Node.js backend routes
+* Use React frontend
+* Use Axios/fetch for API calls
+
+Backend Structure:
+
+* /api/user/:username
+* /api/gamepasses/:userId
+
+Use backend proxy routes so frontend never directly hits Roblox APIs.
+
+FETCHING LOGIC:
+
+1. Fetch userId from username
+2. Fetch all universes/games owned by the user
+3. Fetch all gamepasses from those universes
+4. Merge all passes
+5. Remove duplicate pass IDs
+6. Filter:
+
+   * price > 0
+   * onSale/isForSale true
+7. Sort ascending by price
+
+OPTIMIZATION REQUIREMENTS:
+
+* Cache results for 5 minutes
+* Prevent spam requests
+* Add request queueing
+* Add retry logic
+* Add timeout protection
+* Limit simultaneous API requests
+* Gracefully handle Roblox rate limits
+
+FRONTEND UI:
+
+* Dark modern Roblox-inspired UI
+* Donation cards
+* Creator profile
+* Avatar thumbnail
+* Search bar
+* Animated loading states
+* “No gamepasses found” screen
+* Retry button
+
+DONATION BUTTON BEHAVIOR:
+When clicking a donation button:
+
+* Open official Roblox purchase page
+* Use target gamepass ID
+* Never process Robux on the website itself
+
+EXTRA IMPORTANT:
+The website should mimic the logic and behavior of Roblox donation games while remaining fully external and compliant with Roblox systems.
+
+Generate:
+
+* Full frontend
+* Full backend
+* Working API logic
+* Caching system
+* Rate-limit protection
+* Error handling
+* Production-ready structure
+* README instructions

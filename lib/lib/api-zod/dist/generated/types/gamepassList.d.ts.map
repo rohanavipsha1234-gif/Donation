@@ -1,0 +1,1 @@
+{"version":3,"file":"gamepassList.d.ts","sourceRoot":"","sources":["../../../src/generated/types/gamepassList.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AACH,OAAO,KAAK,EAAE,QAAQ,EAAE,MAAM,YAAY,CAAC;AAE3C,MAAM,WAAW,YAAY;IAC3B,UAAU,EAAE,QAAQ,EAAE,CAAC;IACvB,MAAM,EAAE,OAAO,CAAC;IAChB,SAAS,EAAE,MAAM,CAAC;CACnB"}
